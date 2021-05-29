@@ -7,12 +7,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
-endif()
-
-if(APPLE)
-	set(CMAKE_OSX_ARCHITECTURES arm64)
-	OPTION(PNG_HARDWARE_OPTIMIZATIONS OFF)
-endif()
+endif()	
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup")
@@ -31,9 +26,6 @@ add_subdirectory(./WDL/libpng)
 	./WDL/zlib
 )
 
-find_library(COCOA_LIBRARY Cocoa)
-find_library(APPKIT_LIBRARY AppKit)
-
 file(GLOB_RECURSE JPEGLIB_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "./WDL/jpeglib/*.c")
 add_library(reaper_js_ReaScriptAPI 
   SHARED
@@ -48,4 +40,10 @@ add_library(reaper_js_ReaScriptAPI
 	./WDL/lice/lice.cpp
   )
 target_compile_definitions(reaper_js_ReaScriptAPI PRIVATE SWELL_PROVIDED_BY_APP=1)
-target_link_libraries(reaper_js_ReaScriptAPI zlib png ${COCOA_LIBRARY} ${APPKIT_LIBRARY})
+target_link_libraries(reaper_js_ReaScriptAPI zlib png)
+
+if(APPLE)
+	find_library(COCOA_LIBRARY Cocoa)
+	find_library(APPKIT_LIBRARY AppKit)
+	target_link_libraries(reaper_js_ReaScriptAPI ${COCOA_LIBRARY} ${APPKIT_LIBRARY})
+endif()
